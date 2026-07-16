@@ -1,0 +1,21 @@
+engine:
+  default_scope: group
+  command_prefix: "/"
+  language: en
+
+database:
+  url: "sqlite+aiosqlite:///game.db"
+
+cache:
+  ttl: 300
+  write_behind: true
+  flush_interval: 5
+
+progress:
+  money: { default: 0, min: 0 }
+  xp: { default: 0, auto_level: true, per_level: 100 }
+  energy: { default: 100, max: 100 }
+  defense: { default: 100, min: 0, strict: false }
+  custom:
+    size: { default: 0, min: 0 }
+    cucumber: { default: 0, min: 0 }

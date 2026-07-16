@@ -1,0 +1,333 @@
+Rich Domain Model / Rich Domain Object
+به جای اینکه توسعه‌دهنده SQL یا Repository ببیند، فقط با آبجکت‌های بازی کار کند.
+
+
+Scope (مهم‌ترین قسمت)
+به جای اینکه همه‌ی APIها به groupId وابسته باشند، یک مفهوم به اسم Scope وجود داشته باشد.
+Scope مشخص می‌کند داده در چه محدوده‌ای ذخیره یا خوانده شود.
+مثلاً:
+Group / Universal
+e.g:
+    Scope(type=GROUP,id=123456)
+    player.addCucumber(10, scope)
+    player.inventory.add("heart", 2, scope)
+e.g:
+    with command.universal():
+        player.addCucumber(100)
+        player.inventory.add("heart", 1)
+
+
+بعد تمام APIها فقط Scope می‌گیرند.
+
+مثلاً:
+player.addSize(10, Scope.GROUP)
+player.addMoney(500, Scope.UNIVERSAL)
+
+player.Stats (scope needed):
+    player.stats.cups.add/remove ("cup name")
+    player.stats.cups.get #list of cups
+
+player.Clan (scope needed):
+    player.clan.join
+    player.clan.leave
+    player.clan.rank
+    player.clan.clanRank
+    player.clan.get. #name and more ...
+
+player.Inventory (scope needed):
+    player.inventory.add(item)
+    player.inventory.add(item, amount)
+    player.inventory.remove(item)
+    player.inventory.remove(item, amount)
+    player.inventory.has(item)
+    player.inventory.count(item)
+    player.inventory.get(item)
+    player.inventory.all()
+    player.inventory.clear()
+    player.inventory.use(item)
+    e.g:  player.inventory.get(Items.shield)
+
+
+player.Progress (scope needed):
+    player.Progress.money
+    player.Progress.level
+    player.Progress.xp
+    player.Progress.defense
+    player.Progress.attack
+    player.Progress.energy
+    player.Progress.rank
+    player.Progress.premium
+
+player.cooldowns (scope needed) (another table in db):
+    player.cooldowns.start("grow", 3600)
+    player.cooldowns.isReady("grow")
+    player.cooldowns.remaining("grow")
+    player.cooldowns.reset("grow")
+    player.cooldowns.extend("grow", 120)
+    player.cooldowns.reduce("grow", 60)
+    player.cooldowns.finish("grow")
+    player.cooldowns.get("grow")
+
+player.meta (without scope):
+    player.meta.telegramId
+    player.meta.username
+    player.meta.firstName
+
+
+all actions for player should have EventHandeler.
+Items (Plugin-based):
+Every item is a small plugin with its own behavior. The core never checks item types.
+
+item.id
+item.name
+item.price
+item.category
+item.maxOwned
+item.enabled
+
+Item API:
+    item.onPurchase(context)
+    item.onRemove(context)
+    item.onUse(context)
+    item.onProfile(context)
+    item.get(string)
+
+Items can subscribe to command events:
+
+@eventHandler(AttackEvent)
+@eventHandler(GrowEvent)
+@eventHandler(PurchaseEvent)
+...
+
+Items may:
+    - modify values
+    - cancel actions
+    - change response messages
+    - add placeholders
+    - trigger extra actions
+
+No core logic should ever contain:
+    if item.type == ...
+
+
+Command Handler:
+
+Every command is an isolated class.
+
+@command(
+    name,
+    aliases,
+    description,
+    cooldown,
+    permission,
+    category,
+    match
+)
+
+Command Lifecycle:
+
+before(command)
+    Validation, permissions, cooldowns...
+
+execute(command)
+    Main gameplay logic.
+    Creates a mutable Command Event (Context).
+
+after(command)
+    Logging, cleanup, statistics...
+
+Command Event:
+
+Every command creates its own mutable Event/Context.
+The event is dispatched before applying the final result.
+
+Plugins, items and other modules may:
+
+    - modify values
+    - cancel execution
+    - change message key
+    - edit placeholders
+    - attach metadata
+
+Event fields (example):
+
+    attacker
+    target
+    amount
+    damage
+    scope
+    messageKey
+    placeholders
+    metadata
+    cancelled
+
+Event Priority:
+
+LOWEST
+LOW
+NORMAL
+HIGH
+HIGHEST
+MONITOR
+
+
+decorator for item.
+e.g:
+@commandHandler(
+    name="attack",
+    aliases=["atk", "hit"],
+    cooldown=30,
+    match="exact"
+)
+class AttackCommand(Command):
+
+    async def before(self, command):
+
+        attacker = command.sender
+        target = command.arg_player(2)
+
+        if not target:
+            command.cancel("player_not_found")
+            return
+
+        if attacker == target:
+            command.cancel("cannot_attack_self")
+            return
+
+
+    async def execute(self, command):
+
+        attacker = command.sender
+        target = command.arg_player(2)
+
+        amount = command.arg_int(1)
+
+        scope = (
+            Scope.universal()
+            if command.arg(3) == "x"
+            else Scope.group()
+        )
+
+
+        with scope:
+
+            event = AttackEvent(
+                attacker=attacker,
+                target=target,
+                amount=amount,
+                damage=amount,
+                scope=scope
+            )
+
+
+            # اجازه بده همه چیز تغییرش بدهد
+            await EventBus.call(event)
+
+
+            if event.cancelled:
+                return command.reply(
+                    event.cancel_reason
+                )
+
+
+            # نتیجه نهایی
+            target.damage(
+                event.damage
+            )
+
+            attacker.progress.money.take(
+                event.cost
+            )
+
+
+            command.data["attack_event"] = event
+
+
+
+    async def after(self, command):
+
+        event = command.data["attack_event"]
+
+        await command.reply(
+            f"""
+⚔️ Attack finished
+
+Damage:
+{event.damage}
+
+Target:
+{event.target.name}
+"""
+        )
+
+
+
+class AttackEvent(Event):
+
+    def __init__(
+        self,
+        attacker,
+        target,
+        amount,
+        damage,
+        scope
+    ):
+
+        self.attacker = attacker
+
+        self.target = target
+
+        self.original_amount = amount
+
+        self.damage = damage
+
+        self.cost = amount
+
+        self.scope = scope
+
+
+        self.cancelled = False
+
+        self.cancel_reason = None
+
+
+
+    def cancel(self, reason):
+
+        self.cancelled = True
+
+        self.cancel_reason = reason
+
+
+@item("shield")
+class ShieldItem(Item):
+
+
+    @eventHandler(AttackEvent)
+    async def on_attack(self, event):
+
+        target = event.target
+
+
+        if target.inventory.has("shield"):
+
+            target.inventory.remove(
+                "shield",
+                1
+            )
+
+
+            event.cancel(
+                "🛡 Shield blocked attack"
+            )
+
+
+
+
+config:
+3 defualt config files:
+messages.yml
+config.yml
+items.yml
+کانفیگ منیجر باید منعطف باشه چون ممکنه یک ایتم یا یک ویژگی جدید نیاز داشته باشه کانفیگ خودشو از یک فایل دیگه بخونه مثلاً
+future.yml

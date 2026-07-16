@@ -1,0 +1,15 @@
+shield:
+  price: 300
+  max_owned: 3
+  category: combat
+  description: "Blocks one incoming attack."
+
+miner:
+  price: 10
+  category: steal
+  description: "Mines 50 coins every hour."
+
+test:
+  price: 1000
+  category: upgrade
+  description: "A simple test item."

@@ -1,0 +1,42 @@
+engine:
+  default_scope: group
+  command_prefix: "/"
+  language: en
+
+database:
+  url: "sqlite+aiosqlite:///game.db"
+
+cache:
+  ttl: 300
+  write_behind: true
+  flush_interval: 5
+
+progress:
+  size:
+    default: 10
+    min: 0
+  juice:
+    default: 20
+    min: 0
+  tank_level:
+    default: 1
+    min: 1
+  balls_level:
+    default: 1
+    min: 1
+  balls_progress:
+    default: 0
+    min: 0
+
+
+shop:
+  title_key: "shop_title"
+  back_label: "⬅️ Back"
+  empty_label: "No items here yet."
+  categories:
+    steal:
+      label: "🕵️ Steal"
+    combat:
+      label: "⚔️ Attack & Defense"
+    upgrade:
+      label: "⬆️ Upgrade"

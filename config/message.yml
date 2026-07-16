@@ -1,0 +1,4 @@
+player_not_found: "❌ Player not found."
+cannot_attack_self: "🤨 You cannot attack yourself."
+attack_success: "⚔️ You dealt {damage} damage to {target}!"
+cooldown_wait: "⏳ Please wait {seconds}s."

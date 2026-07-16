@@ -1,0 +1,12 @@
+shield:
+  price: 300
+  max_owned: 3
+  category: combat
+
+miner:
+  price: 1000
+  category: steal
+
+test:
+  price: 100
+  category: upgrade

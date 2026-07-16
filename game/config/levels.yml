@@ -1,0 +1,32 @@
+tank:
+  levels:
+    1:
+      max_juice: 20
+    2:
+      max_juice: 40
+    3:
+      max_juice: 70
+    4:
+      max_juice: 120
+
+balls:
+  levels:
+    1:
+      required: 100
+    2:
+      required: 250
+    3:
+      required: 500
+    4:
+      required: 1000
+
+
+juice_generator:
+  interval_seconds: 60
+  base_amount: 5
+  balls_bonus:
+    1: 5
+    2: 8
+    3: 9
+    4: 12
+    5: 15

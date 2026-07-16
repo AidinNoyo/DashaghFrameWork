@@ -1,0 +1,38 @@
+player_not_found: "❌ Player not found."
+cannot_attack_self: "🤨 You cannot attack yourself."
+attack_success: "⚔️ You dealt {damage} damage to {target}!"
+cooldown_wait: "⏳ Please wait {seconds}s."
+
+
+tank_upgraded: "🔼 Tank upgraded to level {level}! Max juice: {max_juice}"
+tank_max_level: "🏆 Tank is at max level."
+tank_min_level: "⚠️ Tank is already at level 1."
+balls_leveled_up: "🔼 Balls reached level {level}!"
+balls_max_level: "🏆 Balls are at max level."
+
+
+profile_card: |
+  👤 Profile — {player_name}
+
+  🆔 ID: {telegram_id}
+  📛 Username: @{username}
+
+  📏 Size: {size}
+  🧃 Juice: {juice} / {tank_max_juice}
+  🛢 Tank Level: {tank_level}
+  ⚽ Balls Level: {balls_level}
+  📈 Balls Progress: {balls_progress}
+
+  🎒 Inventory:
+  {inventory}
+
+  🏆 Cups ({cups_count}):
+  {cups}
+
+  🛡 Clan: {clan}
+
+profile_inventory_line: "  • {name} ×{amount}"
+profile_inventory_empty: "  (empty)"
+profile_cups_empty: "  (none)"
+profile_clan_none: "None"
+profile_not_found: "❌ Player not found."

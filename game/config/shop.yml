@@ -1,0 +1,39 @@
+title: |
+  🔮 User stats :
+    🔹 dick » {juice}
+    🔹 Kamar » {level}
+    🔹 ab » {player_juice}
+
+  🛒 Choose a category:
+
+buttons:
+  back: "⬅️ Back"
+  close: "❌ Close"
+
+messages:
+  pick_item: |
+    player_juice
+    {category}
+
+    {description}
+
+    {items}
+  bought: "✅ You bought {item} for {price}💰"
+  not_enough: "❌ Not enough juice! Price: {price}💰 | You have: {juice}💰"
+
+  item_unavailable: "❌ Item not available."
+  not_owner: "⛔ Only the person who opened the shop can close it."
+  empty: "No items in this category yet."
+
+item_format: "🔷{name} »\n   🔹price : {price}\n   🔹{description}"
+
+categories:
+  steal:
+    label: "🕵️ Steal"
+    description: "Tools to steal from other players."
+  combat:
+    label: "⚔️ Attack & Defense"
+    description: "Weapons and shields for battle."
+  upgrade:
+    label: "⬆️ Upgrade"
+    description: "Boost your stats and progress."
